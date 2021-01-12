@@ -36,31 +36,31 @@ def random_dag(nodes, edges, seed):
 	return G
 
 
-	def construct_S(nrxn,nnod,G):
-		S = np.zeros((nrxn,nnod))
-		adj = nx.linalg.graphmatrix.adjacency_matrix(G).todense()
-		c = 1
-		for i in range(nnod):
-			for j in range(nnod):
-				if adj[i,j] == 1:
-					S[c,i] = -1
-					S[c,j] = 1
-					c += 1
-		rt = np.where([G.in_degree[i]==0 for i in range(nnod)])[0][0]
-		term = np.where([G.out_degree[i]==0 for i in range(nnod)])[0]
-		deg_dom = np.arange(nnod)
-		deg_dom = np.delete(deg_dom,term)
-		deg_dom = np.delete(deg_dom,rt)
-		deg = np.random.choice(deg_dom,n_deg-len(term))
-		deg = np.append(deg,term)
+def construct_S(nrxn,nnod,G):
+	S = np.zeros((nrxn,nnod))
+	adj = nx.linalg.graphmatrix.adjacency_matrix(G).todense()
+	c = 1
+	for i in range(nnod):
+		for j in range(nnod):
+			if adj[i,j] == 1:
+				S[c,i] = -1
+				S[c,j] = 1
+				c += 1
+	rt = np.where([G.in_degree[i]==0 for i in range(nnod)])[0][0]
+	term = np.where([G.out_degree[i]==0 for i in range(nnod)])[0]
+	deg_dom = np.arange(nnod)
+	deg_dom = np.delete(deg_dom,term)
+	deg_dom = np.delete(deg_dom,rt)
+	deg = np.random.choice(deg_dom,n_deg-len(term))
+	deg = np.append(deg,term)
 
-		for i in range(len(deg)):
-			S[c,deg[i]] = -1
-			c+= 1
+	for i in range(len(deg)):
+		S[c,deg[i]] = -1
+		c+= 1
 
-		S[:,[rt,0]]=S[:,[0,rt]]
-		S[0,0] = -5
-		return S
+	S[:,[rt,0]]=S[:,[0,rt]]
+	S[0,0] = -5
+	return S
 
 def gillvec(k,t_matrix,S,nCells):
 	k = np.matlib.repmat(k,nCells,1)
