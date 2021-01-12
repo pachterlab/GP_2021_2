@@ -230,7 +230,7 @@ def compute_mean(S,k,i):
 	n = S.shape[1]
 	g = [np.array([0])]*n 
 	g[i] = np.array([1])
-	a = compute_coeff(S,k,g,r).astype('float64')
+	a = np.real(compute_coeff(S,k,g,r))
 	return k[0]*S[0,0]*sum(a/r)
 
 def compute_cov(S,k,i,j):
@@ -241,8 +241,8 @@ def compute_cov(S,k,i,j):
 	g1[i] = np.array([1])
 	g2[j] = np.array([1])
 
-	a1 = compute_coeff(S,k,g1,r).astype('float64')
-	a2 = compute_coeff(S,k,g2,r).astype('float64')
+	a1 = np.real(compute_coeff(S,k,g1,r))
+	a2 = np.real(compute_coeff(S,k,g2,r))
 	
 	v = 0
 	for i_ in range(n):
