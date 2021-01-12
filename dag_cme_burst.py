@@ -36,7 +36,7 @@ def random_dag(nodes, edges, seed):
 	return G
 
 
-def construct_S(nrxn,nnod,G):
+def construct_S(nrxn,nnod,G,n_deg):
 	S = np.zeros((nrxn,nnod))
 	adj = nx.linalg.graphmatrix.adjacency_matrix(G).todense()
 	c = 1
