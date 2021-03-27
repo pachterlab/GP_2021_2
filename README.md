@@ -1,6 +1,6 @@
 # GP_2021_2
 
-Code to reproduce the figures and results in the preprint "Analytical solutions of the chemical master equationwith bursty production and isomerization reactions" by Gennady Gorin and Lior Pachter. 
+Code to reproduce the figures and results in the preprint "Analytical solutions of the chemical master equation with bursty production and isomerization reactions" by Gennady Gorin and Lior Pachter. 
 
 ``dag_cme_burst.py`` implements the DAG generation, stochastic matrix construction, simulation, and analytical solution routines. 
 
