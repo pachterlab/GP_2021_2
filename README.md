@@ -5,3 +5,5 @@ Code to reproduce the figures and results in the preprint ["Analytical solutions
 ``dag_cme_burst.py`` implements the DAG generation, stochastic matrix construction, simulation, and analytical solution routines. 
 
 ``gg210110_dag_1.ipynb`` demonstrates the performance of the algorithm in a Jupyter notebook.
+
+``gg210609_fltseq.ipynb`` applies the algorithm to an FLT-seq long-read sequencing dataset and validates the consistency oftheoretical correlation constraints.
