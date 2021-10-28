@@ -7,6 +7,7 @@ import scipy.fft
 
 import networkx as nx
 import random   
+import time
 
 #https://ipyparallel.readthedocs.io/en/latest/dag_dependencies.html
 def random_dag(nodes, edges, seed):
@@ -200,7 +201,8 @@ def compute_coeff(S,k,g,r):
 	return np.squeeze(A[0,:,:]).T
 
 
-def cme_integrator(k,mx,S,t):
+def cme_integrator(k,mx,S,t,TIME=False):
+	t1 = time.time()
 	u = []
 	for i in range(len(mx)):
 		l = np.arange(mx[i])
@@ -211,14 +213,23 @@ def cme_integrator(k,mx,S,t):
 		g[i] = g[i].flatten()
 	r = compute_exp(S,k)
 	coeff = compute_coeff(S,k,g,r)
+	t_coeff = time.time()-t1
 
+	t1 = time.time()
 	b = S[0,0]
 	fun = lambda x: INTFUNC_(x,k,r,coeff,b)  
 	I = scipy.integrate.quad_vec(fun,0,t)[0]
-	
+	t_integral = time.time()-t1
+
+	t1 = time.time()
 	I = np.exp(I*k[0])
 	I = np.reshape(I,mx)
-	return np.squeeze(np.real(np.fft.ifftn(I)))
+	FFTRES = np.fft.ifftn(I)
+	t_fft = time.time()-t1
+	if not TIME:
+		return np.squeeze(np.real(FFTRES))
+	if TIME:
+		return np.squeeze(np.real(FFTRES)), t_coeff, t_integral, t_fft
 	
 def INTFUNC_(x,k,r,coeff,b):
 	M = coeff.shape[0]
