@@ -203,7 +203,7 @@ def INTFUNC(x,L,coeff,bs):
 	return Ufun/(1-Ufun)
 
 def compute_mean(L,V,Vinv,k,bs,i):
-    n = len(C)
+    n = len(L)
     g = np.zeros(n) 
     g[i] = 1
     g = g[:,np.newaxis]
