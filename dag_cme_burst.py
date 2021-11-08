@@ -39,14 +39,13 @@ def random_dag(nodes, edges, seed):
 
 def construct_S(nrxn,nnod,G,n_deg):
 	S = np.zeros((nrxn,nnod))
-	adj = nx.linalg.graphmatrix.adjacency_matrix(G).todense()
+    spl_rxns = list(G.edges())
 	c = 1
-	for i in range(nnod):
-		for j in range(nnod):
-			if adj[i,j] == 1:
-				S[c,i] = -1
-				S[c,j] = 1
-				c += 1
+    c = 1
+    for ed in spl_rxns:
+        S[c][ed[0]] = -1
+        S[c][ed[1]] = 1
+        c+=1
 	rt = np.where([G.in_degree[i]==0 for i in range(nnod)])[0][0]
 	term = np.where([G.out_degree[i]==0 for i in range(nnod)])[0]
 	deg_dom = np.arange(nnod)
