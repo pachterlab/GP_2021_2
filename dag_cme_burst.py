@@ -61,6 +61,17 @@ def construct_S(nrxn,nnod,G,n_deg):
 	S[0,0] = -5
 	return S
 
+def construct_C(nnod,G):
+	C = np.zeros((nnod,nnod))
+	spl_rxns = list(G.edges())
+	for i in range(nedg):
+		C[spl_rxns[i][0],spl_rxns[i][1]] = k[i+1]
+	C-= np.diag(np.sum(C,1))
+	for i in range(n_deg):
+		degind = np.where(S[-(1+i)]==-1)[0][0]
+		C[degind,degind] -= k[-(1+i)]    
+	return C
+
 def gillvec(k,t_matrix,S,nCells):
 	k = np.matlib.repmat(k,nCells,1)
 	n_species = S.shape[1]
