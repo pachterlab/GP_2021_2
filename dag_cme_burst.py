@@ -217,6 +217,7 @@ def compute_cov(L,V,Vinv,k,bs,i,j):
     g[i,0] = 1
     g[j,1] = 1
     a = compute_coeff(L,V,Vinv,g)
+    v = 0
     for i_ in range(n):
         for j_ in range(n):
             v += -a[i_,0]*a[j_,1]/(L[i_]+L[j_])
