@@ -61,7 +61,7 @@ def construct_S(nrxn,nnod,G,n_deg):
 	S[0,0] = -5
 	return S
 
-def construct_C(nnod,nedg,n_deg,G,k):
+def construct_C(nnod,nedg,n_deg,G,k,S):
 	C = np.zeros((nnod,nnod))
 	spl_rxns = list(G.edges())
 	for i in range(nedg):
