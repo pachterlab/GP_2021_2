@@ -202,7 +202,7 @@ def INTFUNC(x,L,coeff,bs):
 	Ufun = bs*(np.exp(L*x)@coeff)
 	return Ufun/(1-Ufun)
 
-def compute_mean_(L,V,Vinv,k,bs,i):
+def compute_mean(L,V,Vinv,k,bs,i):
     n = len(C)
     g = np.zeros(n) 
     g[i] = 1
@@ -229,3 +229,8 @@ def compute_coeff(L,V,Vinv,u):
     n_u = u.shape[1]
     a = np.asarray([(V@np.diag( Vinv @ u[:,i]))[0] for i in range(n_u)]).T
     return a
+
+def compute_eigs(C):
+    L,V = np.linalg.eig(C)
+    Vinv = np.linalg.inv(V)
+    return L,V,Vinv
