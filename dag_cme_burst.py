@@ -148,60 +148,17 @@ def rxn_calculator(X,t,k,S,nCells):
 	mu = np.sum(np.matlib.repmat(r2ao,nRxn+1,1).T >= np.cumsum(np.matlib.hstack((np.zeros((nCells,1)),a)),1) ,1)
 	return (t,mu)
 
-def compute_exp(S,k):
-	q = S.shape[0]-1
-	n = S.shape[1]
-	r = np.zeros(n)
-	for i in range(n):
-		r[i] = np.sum(k[np.where(S[:,i]==-1)[0]])	
-	return r
-
-def compute_coeff(S,k,g,r):
-	# q = S.shape[0]-1
-	n = S.shape[1]
-	M = len(g[0])
-	A = np.zeros((n,n,M),dtype=np.complex128)
-	deg_rxn = np.where(np.sum(S,1)==-1)[0]
-	deg_spec = np.array([np.where(S[i,:]==-1)[0][0] for i in deg_rxn])
-
-	#determine terminal nodes
-	term_spec = []
-	for s in deg_spec:
-		r_ = np.where(S[:,s] == -1)[0]
-		no_iso = True
-		for rx in r_:
-			if np.any(S[rx,:]==1):
-				no_iso = False
-		if no_iso:
-			term_spec.append(s)
-	term_spec = np.array(term_spec)
-
-	for t in term_spec:
-		A[t,t,:] = g[t] #set terminal
-
-	#initialize set of computed species
-	C = list(term_spec)
-	species_set = np.arange(n)
-
-	while len(C)<n:
-		st = np.delete(species_set,C)
-		for s in st:
-			r_i = np.where(S[:,s] == -1)[0]
-			r_i = np.array(list(set(r_i).difference(set(deg_rxn)))) #delete the degradation reactions. this list will not have any of the terminal species!
-			
-			P = np.array([np.where(S[i,:]==1)[0][0] for i in r_i]) #identify the products
-			if set(P).issubset(set(C)):
-				for j in range(len(P)):
-					f =  k[r_i[j]] / (r[s] - r)
-					
-					f[s] = 0
-					A[s,:,:] += A[P[j],:,:] * np.matlib.repmat(f,M,1).T
-				A[s,s,:] = g[s] - np.sum(A[s,:,:],0)
-				C.append(s)
-	return np.squeeze(A[0,:,:]).T
+# def compute_exp(S,k):
+# 	q = S.shape[0]-1
+# 	n = S.shape[1]
+# 	r = np.zeros(n)
+# 	for i in range(n):
+# 		r[i] = np.sum(k[np.where(S[:,i]==-1)[0]])	
+# 	return r
 
 
-def cme_integrator(k,mx,S,t,TIME=False):
+
+def cme_integrator(L,V,Vinv,k,mx,bs,t,TIME=False):
 	t1 = time.time()
 	u = []
 	for i in range(len(mx)):
@@ -211,13 +168,13 @@ def cme_integrator(k,mx,S,t,TIME=False):
 	g = np.meshgrid(*[u_ for u_ in u])
 	for i in range(len(mx)):
 		g[i] = g[i].flatten()
-	r = compute_exp(S,k)
-	coeff = compute_coeff(S,k,g,r)
+	g = np.asarray(g)
+ 
+	coeff = compute_coeff(L,V,Vinv,g)
 	t_coeff = time.time()-t1
 
 	t1 = time.time()
-	b = S[0,0]
-	fun = lambda x: INTFUNC_(x,k,r,coeff,b)  
+	fun = lambda x: INTFUNC(x,L,coeff,bs)  
 	I = scipy.integrate.quad_vec(fun,0,t)[0]
 	t_integral = time.time()-t1
 
@@ -226,40 +183,40 @@ def cme_integrator(k,mx,S,t,TIME=False):
 	I = np.reshape(I,mx)
 	FFTRES = np.fft.ifftn(I)
 	t_fft = time.time()-t1
+	FFTRES = np.squeeze(np.real(FFTRES))
 	if not TIME:
-		return np.squeeze(np.real(FFTRES))
+		return FFTRES
 	if TIME:
-		return np.squeeze(np.real(FFTRES)), t_coeff, t_integral, t_fft
-	
-def INTFUNC_(x,k,r,coeff,b):
-	M = coeff.shape[0]
-	Ufun = b*np.sum(np.matlib.repmat(np.exp(-r*x),M,1)*coeff,1)
+		return FFTRES, t_coeff, t_integral, t_fft
+
+def INTFUNC(x,L,coeff,bs):
+	Ufun = bs*(np.exp(L*x)@coeff)
 	return Ufun/(1-Ufun)
 
-def compute_mean(S,k,i):
-	r = compute_exp(S,k)
-	n = S.shape[1]
-	g = [np.array([0])]*n 
-	g[i] = np.array([1])
-	a = np.real(compute_coeff(S,k,g,r))
-	return k[0]*S[0,0]*sum(a/r)
+def compute_mean_(L,V,Vinv,k,bs,i):
+    n = len(C)
+    g = np.zeros(n) 
+    g[i] = 1
+    g = g[:,np.newaxis]
+    a = compute_coeff(L,V,Vinv,g)
+    L = L[:,np.newaxis]
+    return k[0]*bs*np.sum(a/-L)
 
-def compute_cov(S,k,i,j):
-	r = compute_exp(S,k)
-	n = S.shape[1]
-	g1 = [np.array([0])]*n 
-	g2 = g1.copy()
-	g1[i] = np.array([1])
-	g2[j] = np.array([1])
+def compute_cov(L,V,Vinv,k,bs,i,j):
+    n = len(L)
+    g = np.zeros((n,2))
+    g[i,0] = 1
+    g[j,1] = 1
+    a = compute_coeff(L,V,Vinv,g)
+    for i_ in range(n):
+        for j_ in range(n):
+            v += -a[i_,0]*a[j_,1]/(L[i_]+L[j_])
+    v *= 2*k[0]*bs**2
+    if i==j:
+        v += compute_mean(L,V,Vinv,k,bs,i)
+    return v
 
-	a1 = np.real(compute_coeff(S,k,g1,r))
-	a2 = np.real(compute_coeff(S,k,g2,r))
-	
-	v = 0
-	for i_ in range(n):
-		for j_ in range(n):
-			v += a1[i_]*a2[j_]/(r[i_]+r[j_])
-	v *= 2*k[0]*S[0,0]**2
-	if i==j:
-		v += compute_mean(S,k,i)
-	return v
+def compute_coeff(L,V,Vinv,u):
+    n_u = u.shape[1]
+    a = np.asarray([(V@np.diag( Vinv @ u[:,i]))[0] for i in range(n_u)]).T
+    return a
