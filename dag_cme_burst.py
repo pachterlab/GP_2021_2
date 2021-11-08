@@ -41,7 +41,6 @@ def construct_S(nrxn,nnod,G,n_deg):
 	S = np.zeros((nrxn,nnod))
     spl_rxns = list(G.edges())
 	c = 1
-    c = 1
     for ed in spl_rxns:
         S[c][ed[0]] = -1
         S[c][ed[1]] = 1
