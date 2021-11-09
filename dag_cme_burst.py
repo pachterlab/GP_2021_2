@@ -55,7 +55,7 @@ def construct_S(nrxn,nnod,G,n_deg):
 	term = np.where([G.out_degree[i]==0 for i in deg_dom])[0]
 	deg_dom = np.delete(deg_dom,rt)
 	rt = np.where([G.in_degree[i]==0 for i in deg_dom])[0][0] #should always be zero for this test case
-	if len(deg_dom)>0 #what if there are more terminal nodes than n_deg?
+	if len(deg_dom)>0: #what if there are more terminal nodes than n_deg?
 		deg = np.random.choice(deg_dom,n_deg-len(term))
 		deg = np.append(deg,term)
 
