@@ -4,6 +4,6 @@ Code to reproduce the figures and results in the preprint ["Analytical solutions
 
 ``dag_cme_burst.py`` implements the DAG generation, stochastic matrix construction, simulation, and analytical solution routines. 
 
-``gg210110_dag_1.ipynb`` demonstrates that the algorithm concords with simulations.
+``gg211028_dag_2.ipynb`` demonstrates that the algorithm concords with simulations, and benchmarks the algorithm's runtime.
 
-``gg210609_fltseq.ipynb`` applies the algorithm to an FLT-seq long-read sequencing dataset and validates the consistency of theoretical correlation constraints.
+``gg211030_fltseq_5.ipynb`` applies the algorithm to an FLT-seq long-read sequencing dataset and validates the consistency of theoretical correlation constraints on inter-gene and intra-gene correlation matrices.
