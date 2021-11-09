@@ -48,13 +48,16 @@ def construct_S(nrxn,nnod,G,n_deg):
 		S[c][ed[0]] = -1
 		S[c][ed[1]] = 1
 		c+=1
-	rt = np.where([G.in_degree[i]==0 for i in range(nnod)])[0][0]
-	term = np.where([G.out_degree[i]==0 for i in range(nnod)])[0]
+	
+	
 	deg_dom = np.arange(nnod)
 	deg_dom = np.delete(deg_dom,term)
+	term = np.where([G.out_degree[i]==0 for i in deg_dom])[0]
 	deg_dom = np.delete(deg_dom,rt)
-	deg = np.random.choice(deg_dom,n_deg-len(term))
-	deg = np.append(deg,term)
+	rt = np.where([G.in_degree[i]==0 for i in deg_dom])[0][0] #should always be zero for this test case
+	if len(deg_dom)>0 #what if there are more terminal nodes than n_deg?
+		deg = np.random.choice(deg_dom,n_deg-len(term))
+		deg = np.append(deg,term)
 
 	for i in range(len(deg)):
 		S[c,deg[i]] = -1
@@ -62,7 +65,8 @@ def construct_S(nrxn,nnod,G,n_deg):
 
 	S[:,[rt,0]]=S[:,[0,rt]]
 	S[0,0] = -5
-	return S
+	n_deg = len(deg)
+	return S,n_deg 
 
 def construct_C(nnod,nedg,n_deg,G,k,S):
 	C = np.zeros((nnod,nnod))
