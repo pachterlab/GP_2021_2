@@ -34,6 +34,9 @@ def random_dag(nodes, edges, seed):
 				G.remove_edge(a,b)
 		if sum([G.in_degree[i]==0 for i in range(nodes)])==1 and nx.is_weakly_connected(G) and len(G.edges()) == e:
 			break
+	rt = np.where([G.in_degree[i]==0 for i in range(nnod)])[0][0]
+	G = nx.relabel_nodes(G,{0:rt,rt:0},copy=True)
+
 	return G
 
 
